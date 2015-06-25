@@ -1,1 +1,1 @@
-# WellDefined
+# Easy Defines
