@@ -4,15 +4,14 @@ using System.Collections.Generic;
 
 public class EasyDefinesWindow : EditorWindow
 {
-    private static bool m_autoRecompile = false;
     private static List<EasyDefine> m_defines;
  
     private string currentDefineString = string.Empty;
 
-	[MenuItem("Window/Easy Defines")]
+	[MenuItem("Window/#Easy Defines")]
 	public static void ShowWindow()
 	{
-		EasyDefinesWindow definesWindow = EditorWindow.GetWindow<EasyDefinesWindow> ("Easy Defines");
+		EasyDefinesWindow definesWindow = EditorWindow.GetWindow<EasyDefinesWindow> ("#Easy Defines");
 
 		m_defines = EasyDefineTools.GetAllDefines();
 	}
@@ -29,8 +28,6 @@ public class EasyDefinesWindow : EditorWindow
 
         GUILayout.BeginVertical();
         {
-            // draw current list of entries with checkboxes to activate for a specific rsp
-            // right click contextual menu to remove
             if(m_defines != null)
             {
                 GUILayout.BeginVertical();
@@ -42,30 +39,30 @@ public class EasyDefinesWindow : EditorWindow
                         {
                             EasyDefine easyDefine = m_defines[i];
                             GUILayout.Label(easyDefine.m_defineName, GUILayout.Width(150));
-                            GUI.color = easyDefine.m_csActive ? Color.green : Color.gray;
-                            if(GUILayout.Button("CS"))
-                            {
-                                easyDefine.m_csActive = !easyDefine.m_csActive;
-								changeDetected = true;// HACK
-                            }
                             GUI.color = easyDefine.m_editorActive ? Color.green : Color.gray;
-                            if(GUILayout.Button("ED"))
+                            if(GUILayout.Button("Editor"))
                             {
                                 easyDefine.m_editorActive = !easyDefine.m_editorActive;
-								changeDetected = true;// HACK
+                                changeDetected = true;
+                            }
+                            GUI.color = easyDefine.m_csActive ? Color.green : Color.gray;
+                            if(GUILayout.Button("C#"))
+                            {
+                                easyDefine.m_csActive = !easyDefine.m_csActive;
+								changeDetected = true;
                             }
                             GUI.color = easyDefine.m_usActive ? Color.green : Color.gray;
-                            if(GUILayout.Button("US"))
+                            if(GUILayout.Button("JS"))
                             {
                                 easyDefine.m_usActive = !easyDefine.m_usActive;
-								changeDetected = true;// HACK
+								changeDetected = true;
                             }
                             
                             GUI.color = Color.red;
                             if(GUILayout.Button("Delete"))
                             {
                                 removeAtIndex = i;
-								changeDetected = true;// HACK
+								changeDetected = true;
                             }
                             GUI.color = defaultGUIColor;
 
@@ -84,7 +81,6 @@ public class EasyDefinesWindow : EditorWindow
                 GUILayout.EndVertical();
             }
 
-            // textfield for adding new entries
             GUILayout.BeginHorizontal();
             {
                 currentDefineString = GUILayout.TextField(currentDefineString);
@@ -118,5 +114,4 @@ public class EasyDefinesWindow : EditorWindow
 		}
         GUILayout.EndVertical();
 	}
-// unsafe ?
 }
