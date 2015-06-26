@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -20,7 +21,18 @@ public class EasyDefineTools
     }
     
     public static void ForceRecompile()
-    {
+	{
+		AssetDatabase.StartAssetEditing();
+		string[] allAssetPaths = AssetDatabase.GetAllAssetPaths();
+		foreach (string assetPath in allAssetPaths)
+		{
+			MonoScript script = AssetDatabase.LoadAssetAtPath(assetPath, typeof(MonoScript)) as MonoScript;
+			if (script != null)
+			{
+				AssetDatabase.ImportAsset(assetPath);
+			}
+		}
+		AssetDatabase.StopAssetEditing();
     }
 
     public static List<EasyDefine> GetAllDefines()
@@ -78,18 +90,9 @@ public class EasyDefineTools
         string[] editorDefines = allLines.FindAll(x => x.Split(delims) [3] == "1").ToArray();
         string[] unityScriptDefines = allLines.FindAll(x => x.Split(delims) [4] == "1").ToArray();
 
-        if (cSharpDefines != null && cSharpDefines.Length > 0)
-        {
-            WriteActiveDefineListToRSP(Application.dataPath + "/smcs.rsp", cSharpDefines);
-        }
-        if (editorDefines != null && editorDefines.Length > 0)
-        {
-            WriteActiveDefineListToRSP(Application.dataPath + "/gmcs.rsp", editorDefines);
-        }
-        if (unityScriptDefines != null && unityScriptDefines.Length > 0)
-        {
-            WriteActiveDefineListToRSP(Application.dataPath + "/us.rsp", unityScriptDefines);
-        }
+        WriteActiveDefineListToRSP(Application.dataPath + "/smcs.rsp", cSharpDefines);
+        WriteActiveDefineListToRSP(Application.dataPath + "/gmcs.rsp", editorDefines);
+        WriteActiveDefineListToRSP(Application.dataPath + "/us.rsp", unityScriptDefines);
     }
 
     private static void SyncDefinesFromRSP()
@@ -133,6 +136,8 @@ public class EasyDefineTools
 
     private static EasyDefine GetEasyDefineFromDefineText(string define)
     {
+		// TODO : is this string valid?
+
         char[] delims = {':'};
         string[] defineInfo = define.Split(delims);
         

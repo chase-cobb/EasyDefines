@@ -14,13 +14,17 @@ public class EasyDefinesWindow : EditorWindow
 	{
 		EasyDefinesWindow definesWindow = EditorWindow.GetWindow<EasyDefinesWindow> ("Easy Defines");
 
-        m_defines = EasyDefineTools.GetAllDefines();
+		m_defines = EasyDefineTools.GetAllDefines();
 	}
-
+	
 	void OnGUI()
 	{
+		if (m_defines == null)
+		{
+			m_defines = EasyDefineTools.GetAllDefines();
+		}
+
         bool changeDetected = false;
-        bool recompileButtonPressed = false;
         Color defaultGUIColor = GUI.color;
 
         GUILayout.BeginVertical();
@@ -42,26 +46,26 @@ public class EasyDefinesWindow : EditorWindow
                             if(GUILayout.Button("CS"))
                             {
                                 easyDefine.m_csActive = !easyDefine.m_csActive;
-                                recompileButtonPressed = true;// HACK
+								changeDetected = true;// HACK
                             }
                             GUI.color = easyDefine.m_editorActive ? Color.green : Color.gray;
                             if(GUILayout.Button("ED"))
                             {
                                 easyDefine.m_editorActive = !easyDefine.m_editorActive;
-                                recompileButtonPressed = true;// HACK
+								changeDetected = true;// HACK
                             }
                             GUI.color = easyDefine.m_usActive ? Color.green : Color.gray;
                             if(GUILayout.Button("US"))
                             {
                                 easyDefine.m_usActive = !easyDefine.m_usActive;
-                                recompileButtonPressed = true;// HACK
+								changeDetected = true;// HACK
                             }
                             
                             GUI.color = Color.red;
                             if(GUILayout.Button("Delete"))
                             {
                                 removeAtIndex = i;
-                                recompileButtonPressed = true;// HACK
+								changeDetected = true;// HACK
                             }
                             GUI.color = defaultGUIColor;
 
@@ -74,7 +78,7 @@ public class EasyDefinesWindow : EditorWindow
                     {
                         m_defines.RemoveAt(removeAtIndex);
 
-                        // TODO : force update
+						changeDetected = true;
                     }
                 }
                 GUILayout.EndVertical();
@@ -86,26 +90,33 @@ public class EasyDefinesWindow : EditorWindow
                 currentDefineString = GUILayout.TextField(currentDefineString);
                 if (GUILayout.Button("Add"))
                 {
-                    EasyDefine easyDefine;
-                    easyDefine.m_defineName = currentDefineString;
-                    easyDefine.m_csActive = false;
-                    easyDefine.m_editorActive = false;
-                    easyDefine.m_usActive = false;
-                    m_defines.Add(easyDefine);
-                    currentDefineString = string.Empty;
-                    recompileButtonPressed = true;// HACK
+					if(currentDefineString != string.Empty)
+					{
+	                    EasyDefine easyDefine;
+	                    easyDefine.m_defineName = currentDefineString;
+	                    easyDefine.m_csActive = false;
+	                    easyDefine.m_editorActive = false;
+	                    easyDefine.m_usActive = false;
+	                    m_defines.Add(easyDefine);
+	                    currentDefineString = string.Empty;
+						changeDetected = true;// HACK
+					}
                 }
             }
             GUILayout.EndHorizontal();
-        }
-        GUILayout.EndVertical();
+		}
+		
+		if (changeDetected)
+		{
+			EasyDefineTools.SyncEasyDefinesToSyncFile();
+			EasyDefineTools.SyncDefinesToRSP();
+		}
 
-        if ((changeDetected && m_autoRecompile) || recompileButtonPressed)
-        {
-            EasyDefineTools.SyncEasyDefinesToSyncFile();
-            EasyDefineTools.SyncDefinesToRSP();
-            EasyDefineTools.ForceRecompile();
-        }
+		if (GUILayout.Button ("Apply Changes"))
+		{
+			EasyDefineTools.ForceRecompile();
+		}
+        GUILayout.EndVertical();
 	}
 // unsafe ?
 }
