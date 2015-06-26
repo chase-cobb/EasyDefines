@@ -31,31 +31,46 @@ public class EasyDefinesWindow : EditorWindow
             {
                 GUILayout.BeginVertical();
                 {
+                    int removeAtIndex = -1;
                     for(int i = 0; i < m_defines.Count; ++i)
                     {
                         GUILayout.BeginHorizontal("Box");
                         {
                             EasyDefine easyDefine = m_defines[i];
                             GUILayout.Label(easyDefine.m_defineName, GUILayout.Width(150));
-                            GUI.color = easyDefine.m_csActive ? Color.green : Color.red;
+                            GUI.color = easyDefine.m_csActive ? Color.green : Color.gray;
                             if(GUILayout.Button("CS"))
                             {
                                 easyDefine.m_csActive = !easyDefine.m_csActive;
                             }
-                            GUI.color = easyDefine.m_editorActive ? Color.green : Color.red;
+                            GUI.color = easyDefine.m_editorActive ? Color.green : Color.gray;
                             if(GUILayout.Button("ED"))
                             {
                                 easyDefine.m_editorActive = !easyDefine.m_editorActive;
                             }
-                            GUI.color = easyDefine.m_usActive ? Color.green : Color.red;
+                            GUI.color = easyDefine.m_usActive ? Color.green : Color.gray;
                             if(GUILayout.Button("US"))
                             {
                                 easyDefine.m_usActive = !easyDefine.m_usActive;
                             }
+                            
+                            GUI.color = Color.red;
+                            if(GUILayout.Button("Delete"))
+                            {
+                                removeAtIndex = i;
+                            }
                             GUI.color = defaultGUIColor;
+
                             m_defines[i] = easyDefine;
                         }
                         GUILayout.EndHorizontal();
+                    }
+
+                    if(removeAtIndex != -1)
+                    {
+                        m_defines.RemoveAt(removeAtIndex);
+
+                        // TODO : force update
                     }
                 }
                 GUILayout.EndVertical();
