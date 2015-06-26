@@ -42,22 +42,26 @@ public class EasyDefinesWindow : EditorWindow
                             if(GUILayout.Button("CS"))
                             {
                                 easyDefine.m_csActive = !easyDefine.m_csActive;
+                                recompileButtonPressed = true;// HACK
                             }
                             GUI.color = easyDefine.m_editorActive ? Color.green : Color.gray;
                             if(GUILayout.Button("ED"))
                             {
                                 easyDefine.m_editorActive = !easyDefine.m_editorActive;
+                                recompileButtonPressed = true;// HACK
                             }
                             GUI.color = easyDefine.m_usActive ? Color.green : Color.gray;
                             if(GUILayout.Button("US"))
                             {
                                 easyDefine.m_usActive = !easyDefine.m_usActive;
+                                recompileButtonPressed = true;// HACK
                             }
                             
                             GUI.color = Color.red;
                             if(GUILayout.Button("Delete"))
                             {
                                 removeAtIndex = i;
+                                recompileButtonPressed = true;// HACK
                             }
                             GUI.color = defaultGUIColor;
 
@@ -82,7 +86,12 @@ public class EasyDefinesWindow : EditorWindow
                 currentDefineString = GUILayout.TextField(currentDefineString);
                 if (GUILayout.Button("Add"))
                 {
-                    EasyDefineTools.AddDefine(currentDefineString);
+                    EasyDefine easyDefine;
+                    easyDefine.m_defineName = currentDefineString;
+                    easyDefine.m_csActive = false;
+                    easyDefine.m_editorActive = false;
+                    easyDefine.m_usActive = false;
+                    m_defines.Add(easyDefine);
                     currentDefineString = string.Empty;
                     recompileButtonPressed = true;// HACK
                 }
@@ -93,6 +102,7 @@ public class EasyDefinesWindow : EditorWindow
 
         if ((changeDetected && m_autoRecompile) || recompileButtonPressed)
         {
+            EasyDefineTools.SyncEasyDefinesToSyncFile();
             EasyDefineTools.SyncDefinesToRSP();
             EasyDefineTools.ForceRecompile();
         }

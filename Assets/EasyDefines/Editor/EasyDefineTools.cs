@@ -18,97 +18,9 @@ public class EasyDefineTools
         C_SHARP_EDITOR = 2,
         UNITYSCRIPT = 4
     }
-
-    public static void AddDefine(string define)
+    
+    public static void ForceRecompile()
     {
-        string filePath = Application.dataPath + SYNC_FILE_LOCATION;
-        if (!File.Exists(filePath))
-        {
-            FileStream fs = File.Create(filePath);
-            fs.Close();
-        }
-
-        string[] allLines = File.ReadAllLines(filePath);
-
-        // TODO : MAKE SURE THE DEFINE HAS ONLY VALID CHARACTERS!!
-
-        // does this define already exist?
-        foreach(string line in allLines)
-        {
-            if(line.Contains(define))
-            {
-                Debug.Log("This define already exists");
-                return;
-            }
-        }
-
-        string newDefine = "D:" + define + INACTIVE_DEFINE_PREFIX + Environment.NewLine;
-        m_defines.Add(GetEasyDefineFromDefineText(newDefine));
-        File.AppendAllText(filePath, newDefine);
-    }
-
-    public static void RemoveDefine(string define)
-    {
-        string filePath = Application.dataPath + SYNC_FILE_LOCATION;
-        if (!File.Exists(filePath))
-        {
-            FileStream fs = File.Create(filePath);
-            fs.Close();
-        } 
-        else
-        {
-            List<string> allLines = new List<string>(File.ReadAllLines(filePath));
-            string lineContainingDefine = string.Empty;
-
-            foreach(string line in allLines)
-            {
-                if(line.Contains(define))
-                {
-                    lineContainingDefine = line;
-                }
-            }
-
-            if(lineContainingDefine != string.Empty)
-            {
-                // TODO : remove from defines list
-                allLines.Remove(lineContainingDefine);
-                File.WriteAllLines(filePath, allLines.ToArray());
-            }
-            else
-            {
-                Debug.Log("Can't remove define, not found");
-            }
-        }
-    }
-
-    public static void SetDefineActive(string define,bool isActive, DefineType defineType)
-    {
-        string filePath = Application.dataPath + SYNC_FILE_LOCATION;
-        if (!File.Exists(filePath))
-        {
-            FileStream fs = File.Create(filePath);
-            fs.Close();
-        } 
-        else
-        {
-            List<string> allLines = new List<string>(File.ReadAllLines(filePath));
-            string lineContainingDefine = string.Empty;
-            char[] delims = {':'};
-            
-            int itemIndex = allLines.FindIndex(x => x.Split(delims)[1] == define);
-
-            if(itemIndex != -1)
-            {
-                allLines[itemIndex] = string.Format(FULL_DEFINE_TEXT,
-                                                    "D",
-                                                    define,
-                                                    ((defineType & DefineType.C_SHARP) != 0) ? 1 : 0,
-                                                    ((defineType & DefineType.C_SHARP_EDITOR) != 0) ? 1 : 0,
-                                                    ((defineType & DefineType.UNITYSCRIPT) != 0) ? 1 : 0);
-
-                File.WriteAllLines(filePath, allLines.ToArray());
-            }
-        }
     }
 
     public static List<EasyDefine> GetAllDefines()
@@ -121,7 +33,8 @@ public class EasyDefineTools
         }
 
         string[] allDefines = File.ReadAllLines(filePath);
-
+        
+        m_defines.Clear();
         foreach (string define in allDefines)
         {
             EasyDefine easyDefine = GetEasyDefineFromDefineText(define);
@@ -132,12 +45,22 @@ public class EasyDefineTools
         return m_defines;
     }
 
-    public static void ForceRecompile()
+    public static void SyncEasyDefinesToSyncFile()
     {
-    }
+        string filePath = Application.dataPath + SYNC_FILE_LOCATION;
+        if (!File.Exists(filePath))
+        {
+            FileStream fs = File.Create(filePath);
+            fs.Close();
+        }
 
-    public static void ClearDefines()
-    {
+        List<string> allDefines = new List<string>();
+        foreach (EasyDefine easyDefine in m_defines)
+        {
+            allDefines.Add(GetDefineTextFromEasyDefine(easyDefine));
+        }
+
+        File.WriteAllLines(filePath, allDefines.ToArray());
     }
 
     public static void SyncDefinesToRSP()
@@ -196,6 +119,16 @@ public class EasyDefineTools
         }
         
         File.WriteAllLines(rspPath, newDefines.ToArray());
+    }
+
+    private static string GetDefineTextFromEasyDefine(EasyDefine easyDefine)
+    {
+        return string.Format(FULL_DEFINE_TEXT,
+                             "D",
+                             easyDefine.m_defineName,
+                             easyDefine.m_csActive ? "1" : "0",
+                             easyDefine.m_editorActive ? "1" : "0",
+                             easyDefine.m_usActive ? "1" : "0");
     }
 
     private static EasyDefine GetEasyDefineFromDefineText(string define)
