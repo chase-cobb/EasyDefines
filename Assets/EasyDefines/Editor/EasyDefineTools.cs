@@ -109,10 +109,6 @@ public class EasyDefineTools
 
         char[] delims = {':'};
 
-        for (int i = 0; i < activeDefines.Length; ++i)
-        {
-            activeDefines[i] = activeDefines[i].Split(delims)[1];
-        }
         
         List<string> newDefines = new List<string>();
         
