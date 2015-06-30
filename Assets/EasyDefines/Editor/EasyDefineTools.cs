@@ -1,9 +1,25 @@
-﻿using UnityEngine;
+﻿//Copyright 2015 Chase Cobb
+//
+//Licensed under the Apache License, Version 2.0 (the "License");
+//you may not use this file except in compliance with the License.
+//You may obtain a copy of the License at
+//		
+//		http://www.apache.org/licenses/LICENSE-2.0
+//		
+//Unless required by applicable law or agreed to in writing, software
+//distributed under the License is distributed on an "AS IS" BASIS,
+//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//See the License for the specific language governing permissions and
+//limitations under the License.
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
 using System.Collections.Generic;
 
+/// <summary>
+/// Tools for basic Easy Define functionality.
+/// </summary>
 public class EasyDefineTools
 {
     public static readonly string SYNC_FILE_LOCATION = "/EasyDefines/EasyDefines.txt";
@@ -20,6 +36,9 @@ public class EasyDefineTools
         UNITYSCRIPT = 4
     }
     
+	/// <summary>
+	/// Forces a recompile of scripts.
+	/// </summary>
     public static void ForceRecompile()
 	{
 		AssetDatabase.StartAssetEditing();
@@ -35,6 +54,10 @@ public class EasyDefineTools
 		AssetDatabase.StopAssetEditing();
     }
 
+	/// <summary>
+	/// Gets all defines.
+	/// </summary>
+	/// <returns>The all defines.</returns>
     public static List<EasyDefine> GetAllDefines()
     {
         string filePath = Application.dataPath + SYNC_FILE_LOCATION;
@@ -57,6 +80,9 @@ public class EasyDefineTools
         return m_defines;
     }
 
+	/// <summary>
+	/// Syncs the easy defines to sync file.
+	/// </summary>
     public static void SyncEasyDefinesToSyncFile()
     {
         string filePath = Application.dataPath + SYNC_FILE_LOCATION;
@@ -75,6 +101,9 @@ public class EasyDefineTools
         File.WriteAllLines(filePath, allDefines.ToArray());
     }
 
+	/// <summary>
+	/// Syncs the defines to the appropriate RSP files.
+	/// </summary>
     public static void SyncDefinesToRSP()
     {
         string filePath = Application.dataPath + SYNC_FILE_LOCATION;
@@ -95,10 +124,11 @@ public class EasyDefineTools
         WriteActiveDefineListToRSP(Application.dataPath + "/us.rsp", unityScriptDefines);
     }
 
-    private static void SyncDefinesFromRSP()
-    {
-    }
-
+	/// <summary>
+	/// Writes the active define list to RSP files.
+	/// </summary>
+	/// <param name="rspPath">Rsp path.</param>
+	/// <param name="activeDefines">Active defines.</param>
     private static void WriteActiveDefineListToRSP(string rspPath, string[] activeDefines)
     {
         if(!File.Exists(rspPath))
@@ -120,6 +150,11 @@ public class EasyDefineTools
         File.WriteAllLines(rspPath, newDefines.ToArray());
     }
 
+	/// <summary>
+	/// Gets the define text from easy define.
+	/// </summary>
+	/// <returns>The define text from easy define.</returns>
+	/// <param name="easyDefine">Easy define.</param>
     private static string GetDefineTextFromEasyDefine(EasyDefine easyDefine)
     {
         return string.Format(FULL_DEFINE_TEXT,
@@ -130,9 +165,14 @@ public class EasyDefineTools
                              easyDefine.m_usActive ? "1" : "0");
     }
 
+	/// <summary>
+	/// Gets the easy define from define text.
+	/// </summary>
+	/// <returns>The easy define from define text.</returns>
+	/// <param name="define">Define.</param>
     private static EasyDefine GetEasyDefineFromDefineText(string define)
     {
-		// TODO : is this string valid?
+		// TODO : chase : is this string a valid define?
 
         char[] delims = {':'};
         string[] defineInfo = define.Split(delims);
