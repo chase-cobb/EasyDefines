@@ -1,3 +1,5 @@
+This is no longer under development...
+
 # Easy Defines  
 Copyright 2015 Chase Cobb
 
